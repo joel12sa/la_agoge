@@ -45,3 +45,4 @@ app.*.map.json
 /android/app/release
 
 Firebase_App_Distribution_Setup.md
+/.github/workflows/gitappy_notes.md

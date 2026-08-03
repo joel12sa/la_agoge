@@ -53,15 +53,15 @@ jobs:
         run: flutter build apk --release
 
       # Step 8: Upload to Firebase App Distribution
-      # (Uses wzieba/Firebase-Distribution-github-action@v2)
+      # (Uses wzieba/Firebase-Distribution-github-action@v1)
       - name: Upload to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-github-action@v2
+        uses: wzieba/Firebase-Distribution-github-action@v1
         with:
-          serviceAccountJsonContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           appId: ${{ env.FIREBASE_APP_ID }}
           file: build/app/outputs/apk/release/app-release.apk
           groups: ${{ env.FIREBASE_TESTER_GROUPS }}
-          releaseNotes: ${{ github.event_name == 'workflow_dispatch' && 'Manual dispatch' || github.event.pull_request.title || github.event.commits[0].message }}
+          releaseNotes: ${{ github.event_name == 'workflow_dispatch' && 'Manual dispatch' || github.event.commits[0].message }}
 
       # Step 9: Upload artifact (for direct download)
       - name: Upload APK artifact
