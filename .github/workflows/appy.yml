@@ -58,9 +58,9 @@ jobs:
         uses: wzieba/Firebase-Distribution-github-action@v1
         with:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          appId: ${{ env.FIREBASE_APP_ID }}
+          appId: ${{ vars.FIREBASE_APP_ID }}
           file: build/app/outputs/apk/release/app-release.apk
-          groups: ${{ env.FIREBASE_TESTER_GROUPS }}
+          groups: ${{ vars.FIREBASE_TESTER_GROUPS }}
           releaseNotes: ${{ github.event_name == 'workflow_dispatch' && 'Manual dispatch' || github.event.commits[0].message }}
 
       # Step 9: Upload artifact (for direct download)
