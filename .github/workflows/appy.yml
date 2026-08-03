@@ -1,0 +1,96 @@
+# GitHub Actions pipeline for Flutter Android APK build and Firebase App Distribution
+# - Runs on push to main or manual dispatch
+# - Builds release APK, uploads it to Firebase App Distribution
+# - Testers get a link via the 'App Tester' app
+
+name: Build & Distribute (Android)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+  FIREBASE_TESTER_GROUPS: ${{ secrets.FIREBASE_TESTER_GROUPS }}
+
+jobs:
+  build-and-distribute:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Flutter (stable, with caching)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Step 3: Setup Java 17
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Step 5: Static analysis
+      - name: Analyze code
+        run: flutter analyze
+
+      # Step 6: Run unit tests
+      - name: Run tests
+        run: flutter test
+
+      # Step 7: Build APK
+      - name: Build release APK
+        run: flutter build apk --release
+
+      # Step 8: Upload to Firebase App Distribution
+      # (Uses wzieba/Firebase-Distribution-github-action@v2)
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-github-action@v2
+        with:
+          serviceAccountJsonContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          appId: ${{ env.FIREBASE_APP_ID }}
+          file: build/app/outputs/apk/release/app-release.apk
+          groups: ${{ env.FIREBASE_TESTER_GROUPS }}
+          releaseNotes: ${{ github.event_name == 'workflow_dispatch' && 'Manual dispatch' || github.event.pull_request.title || github.event.commits[0].message }}
+
+      # Step 9: Upload artifact (for direct download)
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: build/app/outputs/apk/release/app-release.apk
+
+  # Optional: Add integration test job if needed later
+  # integration-test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Setup Flutter
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #     - name: Setup Java 17
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         distribution: temurin
+  #         java-version: '17'
+  #     - name: Install dependencies
+  #       run: flutter pub get
+  #     - name: Run integration tests
+  #       run: flutter test integration_test/
+  #     - name: Upload test results
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: integration-test-results
+  #         path: test-results.xml
+
