@@ -92,7 +92,8 @@ void main() {
     await tester.tap(find.text('CONTINUAR'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Onboarding completado.'), findsOneWidget);
+    // Completing archetype routes to "La Puerta del Agogé" (feature #2).
+    expect(find.text('LA PUERTA DEL AGOGE'), findsOneWidget);
   });
 
   testWidgets('Male and female tracks load distinct group labels',
