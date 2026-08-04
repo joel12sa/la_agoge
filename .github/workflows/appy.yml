@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: Actions
     steps:
-      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -50,23 +49,34 @@ jobs:
         run: flutter build apk --release
 
       # Step 8: Write service account to file (preserves newlines)
+      # NOTE: written inside $GITHUB_WORKSPACE, not $RUNNER_TEMP —
+      # the Firebase action runs in a Docker container action, and only
+      # GITHUB_WORKSPACE is mounted 1:1 into the container's filesystem.
+      # RUNNER_TEMP resolves to a host-only path inside the container,
+      # so a file written there is invisible to the action and causes
+      # the "have you run firebase login?" auth failure.
       - name: Write service account to file
         shell: bash
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-        run: echo "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
+        run: echo "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$GITHUB_WORKSPACE/firebase-service-account.json"
 
       # Step 9: Upload to Firebase App Distribution
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-github-action@v1
         with:
-          serviceCredentialsFile: ${{ runner.temp }}/firebase-service-account.json
+          serviceCredentialsFile: firebase-service-account.json
           appId: ${{ vars.FIREBASE_APP_ID }}
           file: build/app/outputs/apk/release/app-release.apk
           groups: ${{ vars.FIREBASE_TESTER_GROUPS }}
           releaseNotes: ${{ github.event_name == 'workflow_dispatch' && 'Manual dispatch' || github.event.commits[0].message }}
 
-      # Step 10: Upload artifact (for direct download)
+      # Step 10: Remove service account file (cleanup, don't leave secret on disk)
+      - name: Remove service account file
+        if: always()
+        run: rm -f "$GITHUB_WORKSPACE/firebase-service-account.json"
+
+      # Step 11: Upload artifact (for direct download)
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
