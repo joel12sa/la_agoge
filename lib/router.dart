@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/profile_providers.dart';
-import '../features/home/home_placeholder_screen.dart';
+import '../features/challenge/challenge_tier_selection_screen.dart';
+import '../features/evidence/evidence_capture_placeholder_screen.dart';
 import '../features/onboarding/archetype_selection_screen.dart';
 import '../features/onboarding/gender_selection_screen.dart';
 import '../features/onboarding/splash_screen.dart';
@@ -45,7 +46,11 @@ GoRouter buildAppRouter(WidgetRef ref) {
       ),
       GoRoute(
         path: '/challenge',
-        builder: (context, state) => const HomePlaceholderScreen(),
+        builder: (context, state) => const ChallengeTierSelectionScreen(),
+      ),
+      GoRoute(
+        path: '/evidence',
+        builder: (context, state) => const EvidenceCapturePlaceholderScreen(),
       ),
     ],
   );

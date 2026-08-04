@@ -6,13 +6,31 @@ import '../../../providers/profile_providers.dart';
 import 'widgets/continue_button.dart';
 
 /// Launch screen. On first run it routes to gender selection; returning users
-/// are routed past onboarding automatically.
-class SplashScreen extends ConsumerWidget {
+/// with a complete profile are routed to the challenge screen automatically.
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _autoAdvanced = false;
+
+  @override
+  Widget build(BuildContext context) {
     final profileAsync = ref.watch(profileControllerProvider);
+    final profile = profileAsync.valueOrNull;
+
+    // A fully-provisioned user skips onboarding. The router redirect only runs
+    // on navigation events, so advance once the async profile finishes loading.
+    if (profile != null && profile.isComplete && !_autoAdvanced) {
+      _autoAdvanced = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.go('/challenge');
+      });
+    }
 
     return Scaffold(
       body: SafeArea(
