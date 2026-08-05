@@ -29,7 +29,9 @@ reto de burpees que asumirá, antes de cruzar hacia la captura de evidencia
 
 - Los retos se obtienen del backend: `GET {apiBaseUrl}/tiers`.
   El esquema JSON está documentado en `lib/config/app_config.dart`.
-- `AppConfig.apiBaseUrl` es un valor pendiente de reemplazar por la URL real.
+- `AppConfig.apiBaseUrl` apunta a un **Cloudflare Worker**:
+  `https://la-agoge-tiers.sasigjo3190.workers.dev`
+  (código fuente en `cloudflare_worker/index.js`).
 
 ## Estado
 
@@ -38,6 +40,6 @@ reto de burpees que asumirá, antes de cruzar hacia la captura de evidencia
 | Pantalla "La Puerta del Agogé"    | ✅ implementado                          |
 | Cards de retos (50/100/200)       | ✅ implementado                          |
 | Selección única + attempt pendiente | ✅ implementado                          |
-| Carga de retos desde backend      | ✅ implementado (URL pendiente)          |
+| Carga de retos desde backend      | ✅ implementado (Cloudflare Worker)      |
 | CTA por camino                    | ✅ implementado                          |
 | Navegación a `/evidence`          | ✅ implementado (placeholder)            |

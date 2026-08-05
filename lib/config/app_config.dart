@@ -2,7 +2,7 @@
 ///
 /// ## Challenge tier API
 ///
-/// Tiers for "La Puerta del Agogé" are fetched from a remote endpoint so they
+/// Tiers for "La Puerta del Agogé" are served by a Cloudflare Worker so they
 /// are sourced from configuration rather than hardcoded in the UI.
 ///
 /// `GET {apiBaseUrl}/tiers` returns a JSON array, e.g.:
@@ -15,12 +15,13 @@
 /// ]
 /// ```
 ///
-/// TODO(app): replace [apiBaseUrl] with the real backend base URL. On the
-/// Android emulator, the host machine is reachable at `http://10.0.2.2:8080`.
+/// The worker source lives in `cloudflare_worker/index.js`. To change the
+/// tiers (e.g. bump Guerrero XP), edit that worker in the Cloudflare dashboard
+/// and redeploy — no app rebuild required.
 class AppConfig {
   const AppConfig._();
 
-  static const String apiBaseUrl = 'http://10.0.2.2:8080';
+  static const String apiBaseUrl = 'https://la-agoge-tiers.sasigjo3190.workers.dev';
 
   static const String tiersPath = '/tiers';
 }
